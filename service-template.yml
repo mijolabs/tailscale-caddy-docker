@@ -1,0 +1,14 @@
+services:
+  identifier:
+    image: some/image
+    networks:
+      - caddy-network
+    labels:
+      caddy: "*.example.com"
+      caddy.N_handle: "@handle_identifier"
+      caddy.N_@handle_identifier: "host service.example.com"
+      caddy.N_handle.reverse_proxy: "{{upstreams 8000}}"
+
+networks:
+  caddy-network:
+    external: true

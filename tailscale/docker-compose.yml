@@ -1,0 +1,17 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: tailscaled
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - net_admin
+      - net_raw
+    volumes:
+      - ./data:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      TS_STATE_DIR: /var/lib/tailscale
+      TS_EXTRA_ARGS: --advertise-exit-node
+      TS_HOSTNAME: example.com    # Sets default machine name in Tailscale admin panel
+      TS_AUTHKEY: tskey-auth-...

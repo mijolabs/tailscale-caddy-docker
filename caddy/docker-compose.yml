@@ -1,0 +1,29 @@
+services:
+  docker-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: caddy
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - caddy-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/data/caddy
+      - ./config:/config/caddy
+    deploy:
+      labels:
+        caddy.email: "your@email.here"
+        caddy: "*.example.com"
+        caddy.tls.dns: "cloudflare $CF_API_TOKEN"
+
+volumes:
+  data: {}
+
+networks:
+  caddy-network:
+    external: true

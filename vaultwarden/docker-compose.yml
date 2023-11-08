@@ -1,0 +1,44 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    user: 1000:1000
+    environment:
+      - DOMAIN=https://vault.example.com
+      - LOG_FILE=/data/vaultwarden.log
+      - LOG_LEVEL=debug
+      - SIGNUPS_ALLOWED=false
+      - DISABLE_ADMIN_TOKEN=false
+      - LOGIN_RATELIMIT_MAX_BURST=10
+      - LOGIN_RATELIMIT_SECONDS=60
+    networks:
+      - caddy-network
+    volumes:
+      - ./data:/data
+    labels:
+      caddy: "*.example.com"
+      caddy.1_handle: "@vaultwarden"
+      caddy.1_@vaultwarden: "host vault.example.com"
+      caddy.1_handle.reverse_proxy: "{{upstreams 80}}"
+
+      # Enable GZip compression
+      caddy.encode: "gzip"
+      # Enable HTTP Strict Transport Security (HSTS)
+      caddy.header.Strict-Transport-Security: "max-age=31536000;"
+      # Enable cross-site filter (XSS) and tell browser to block detected attacks
+      caddy.header.X-XSS-Protection: "1; mode=block"
+      # Disallow the site to be rendered within a frame (clickjacking protection)
+      caddy.header.X-Frame-Options: "SAMEORIGIN"
+      # Prevent search engines from indexing (optional)
+      caddy.header.X-Robots-Tag: "noindex, nofollow"
+      # Prevent sniffing of X-Content-Type-Options
+      caddy.header.X-Content-Type-Options: "nosniff"
+      # Remove Server name, X-Powered-By, Last Modified
+      caddy.header.-Server:
+      caddy.header.-X-Powered-By:
+      caddy.header.-Last-Modified:
+
+networks:
+  caddy-network:
+    external: true

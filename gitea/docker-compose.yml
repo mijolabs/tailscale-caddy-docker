@@ -1,0 +1,24 @@
+services:
+  server:
+    image: gitea/gitea:latest
+    container_name: gitea
+    restart: always
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    networks:
+      - caddy-network
+    volumes:
+      - ./data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    labels:
+      caddy: "*.example.com"
+      caddy.2_handle: "@gitea"
+      caddy.2_@gitea: "host git.example.com"
+      caddy.2_handle.reverse_proxy: "{{upstreams 3000}}"
+      caddy_2_handle.reverse_proxy_0: "{{upstreams 2222}}"
+
+networks:
+  caddy-network:
+    external: true
